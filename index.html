@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Activity Logger</title>
+    <link rel="preconnect" href="https://rsms.me/">
+    <link rel="stylesheet" href="https://rsms.me/inter/inter.css">
+    <link rel="stylesheet" href="style.css">
+    <script type="text/javascript" src="https://sdk.userbase.com/2/userbase.js"></script>
+</head>
+
+<body>
+    <!-- Loading View -->
+    <div id="loading-view">Loading...</div>
+
+    <!-- Auth View -->
+    <div id="auth-view">
+        <h1>Login</h1>
+        <form id="login-form">
+            <input id="login-username" type="text" required placeholder="Username">
+            <input id="login-password" type="password" required placeholder="Password">
+            <input type="submit" value="Sign in">
+        </form>
+        <div id="login-error"></div>
+
+        <h1>Create an account</h1>
+        <form id="signup-form">
+            <input id="signup-username" type="text" required placeholder="Username">
+            <input id="signup-password" type="password" required placeholder="Password">
+            <input type="submit" value="Create an account">
+        </form>
+        <div id="signup-error"></div>
+    </div>
+
+    <!-- Activity Log View -->
+
+
+
+    <div id="activity-view">
+        <div id="username"></div>
+        <input type="button" value="Logout" id="logout-button">
+        <div id="logout-error"></div>
+
+        <form id="add-activity-form">
+            <input id="activity-name" type="text" required placeholder="practiced">
+            <input id="activity-mood" type="text" placeholder="mood">
+            <textarea id="activity-note" placeholder="note"></textarea>
+            <input class="button" type="submit" value="add activity">
+        </form>
+
+        <div id="activities"></div>
+        <div id="db-loading">Loading activities...</div>
+        <div id="db-error"></div>
+
+
+        <div id="add-activity-error"></div>
+    </div>
+
+    <!-- Application code -->
+    <script type="text/javascript">
+        userbase.init({
+                appId: '573a7def-c46b-4e80-870f-65a2732bc4bf'
+            })
+            .then((session) => session.user ? showActivities(session.user) : showAuth())
+            .catch(() => showAuth())
+            .finally(() => document.getElementById('loading-view').style.display = 'none')
+
+        function handleLogin(e) {
+            e.preventDefault()
+            const username = document.getElementById('login-username').value
+            const password = document.getElementById('login-password').value
+            userbase.signIn({
+                    username,
+                    password,
+                    rememberMe: 'local'
+                })
+                .then((user) => showActivities(user))
+                .catch((e) => document.getElementById('login-error').innerHTML = e)
+        }
+
+        function handleSignUp(e) {
+            e.preventDefault()
+            const username = document.getElementById('signup-username').value
+            const password = document.getElementById('signup-password').value
+            userbase.signUp({
+                    username,
+                    password,
+                    rememberMe: 'local'
+                })
+                .then((user) => showActivities(user))
+                .catch((e) => document.getElementById('signup-error').innerHTML = e)
+        }
+
+        function handleLogout() {
+            userbase.signOut()
+                .then(() => showAuth())
+                .catch((e) => document.getElementById('logout-error').innerText = e)
+        }
+
+        function showActivities(user) {
+            document.getElementById('auth-view').style.display = 'none'
+            document.getElementById('activity-view').style.display = 'block'
+            document.getElementById('username').innerHTML = user.username
+            document.getElementById('activities').innerText = ''
+            document.getElementById('db-loading').style.display = 'block'
+            document.getElementById('db-error').innerText = ''
+            userbase.openDatabase({
+                    databaseName: 'activities',
+                    changeHandler
+                })
+                .catch((e) => document.getElementById('db-error').innerText = e)
+        }
+
+        function showAuth() {
+            document.getElementById('activity-view').style.display = 'none'
+            document.getElementById('auth-view').style.display = 'block'
+            document.getElementById('login-username').value = ''
+            document.getElementById('login-password').value = ''
+            document.getElementById('login-error').innerText = ''
+            document.getElementById('signup-username').value = ''
+            document.getElementById('signup-password').value = ''
+            document.getElementById('signup-error').innerText = ''
+        }
+
+        function changeHandler(items) {
+            document.getElementById('db-loading').style.display = 'none'
+            const activitiesList = document.getElementById('activities')
+            activitiesList.innerHTML = ''
+
+            // Sort items by date in descending order
+            items.sort((a, b) => new Date(b.item.date) - new Date(a.item.date));
+
+            let lastDate = '';
+            items.forEach(item => {
+                const entry = document.createElement('div');
+                const itemDate = new Date(item.item.date);
+                const today = new Date();
+                const yesterday = new Date(today);
+                yesterday.setDate(yesterday.getDate() - 1);
+
+                let headline;
+                if (itemDate.toDateString() === today.toDateString()) {
+                    headline = "Today";
+                } else if (itemDate.toDateString() === yesterday.toDateString()) {
+                    headline = "Yesterday";
+                } else {
+                    headline = itemDate.toLocaleDateString();
+                }
+
+                if (headline !== lastDate) {
+                    const dateDiv = document.createElement('div');
+                    const dateLine = document.createElement('div');
+                    const dateHeader = document.createElement('h2');
+
+
+                    dateDiv.classList.add('date-div');
+                    dateLine.classList.add('date-line');
+
+                    
+                    dateHeader.innerText = headline;
+
+                    dateDiv.appendChild(dateHeader);
+                    dateDiv.appendChild(dateLine)
+                    activitiesList.appendChild(dateDiv);
+                    lastDate = headline;
+                }
+
+                const timestamp = new Date(item.item.date).toLocaleTimeString([], {
+                    hour: '2-digit',
+                    minute: '2-digit'
+                })
+                
+                entry.classList.add("activity")
+
+                // Define fields with labels and keys
+                const fields = [{
+                        key: 'activity',
+                        label: 'Practiced',
+                        type: 'span',
+                        class: 'activity-name'
+                    },
+                    {
+                        key: 'time',
+                        label: 'at',
+                        type: 'span',
+                        class: 'activity-time',
+                        postfix: timestamp
+                    },
+                    {
+                        key: 'mood',
+                        label: 'felt',
+                        type: 'span',
+                        class: 'activity-mood'
+                    },
+                    {
+                        key: 'notes',
+                        label: 'noted',
+                        type: 'span',
+                        class: 'activity-note'
+                    }
+                ];
+
+                // Build the activity description
+                let descriptionParts = fields.reduce((parts, field) => {
+                    if (field.key === 'time') {
+                        // Handle time differently since it's static, not pulled from item data
+                        const content =
+                            `<${field.type} class="${field.class}">${field.postfix}</${field.type}>`;
+                        const text = `${field.label} ${content}`;
+                        parts.push(text);
+                    } else if (item.item[field.key]) {
+                        // Handle dynamic fields from item data
+                        const content = field.type ?
+                            `<${field.type} class="${field.class}">${item.item[field.key]}</${field.type}>` :
+                            item.item[field.key];
+                        const text = `${field.label} ${content}`;
+                        parts.push(text);
+                    }
+                    return parts;
+                }, []);
+
+                // Join all parts with ", " and replace the last ", " with ", and " if more than one element
+                if (descriptionParts.length > 1) {
+                    const lastPart = descriptionParts.pop();
+                    entry.innerHTML = descriptionParts.join(" ") + " and " + lastPart;
+                } else {
+                    entry.innerHTML = descriptionParts.join("");
+                }
+
+                activitiesList.appendChild(entry);
+            })
+        }
+
+        function addActivityHandler(e) {
+            e.preventDefault()
+            const activity = {
+                date: new Date().toISOString(),
+                activity: document.getElementById('activity-name').value,
+                mood: document.getElementById('activity-mood').value,
+                notes: document.getElementById('activity-note').value
+            }
+            userbase.insertItem({
+                    databaseName: 'activities',
+                    item: activity
+                })
+                .then(() => {
+                    document.getElementById('activity-name').value = ''
+                    document.getElementById('activity-mood').value = ''
+                    document.getElementById('activity-note').value = ''
+
+                })
+                .catch((e) => document.getElementById('add-activity-error').innerHTML = e)
+        }
+
+        document.getElementById('login-form').addEventListener('submit', handleLogin)
+        document.getElementById('signup-form').addEventListener('submit', handleSignUp)
+        document.getElementById('add-activity-form').addEventListener('submit', addActivityHandler)
+        document.getElementById('logout-button').addEventListener('click', handleLogout)
+
+        document.getElementById('activity-view').style.display = 'none'
+        document.getElementById('auth-view').style.display = 'none'
+    </script>
+</body>
+
+</html>

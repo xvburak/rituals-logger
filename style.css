@@ -1,0 +1,172 @@
+/* http://meyerweb.com/eric/tools/css/reset/
+v2.0 | 20110126
+License: none (public domain)
+*/
+
+:root, body, html, * {
+    box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+}
+
+
+html, body, div, span, applet, object, iframe,
+h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+a, abbr, acronym, address, big, cite, code,
+del, dfn, em, img, ins, kbd, q, s, samp,
+small, strike, strong, sub, sup, tt, var,
+b, u, i, center,
+dl, dt, dd, ol, ul, li,
+fieldset, form, label, legend,
+table, caption, tbody, tfoot, thead, tr, th, td,
+article, aside, canvas, details, embed,
+figure, figcaption, footer, header, hgroup, 
+menu, nav, output, ruby, section, summary,
+time, mark, audio, video {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    font-size: 100%;
+    font: inherit;
+    vertical-align: baseline;
+    margin-bottom: 1rem;
+    font-family: Inter, sans-serif;
+    font-feature-settings: 'liga' 1, 'calt' 1; /* fix for Chrome */  
+}
+/* HTML5 display-role reset for older browsers */
+article, aside, details, figcaption, figure, 
+footer, header, hgroup, menu, nav, section {
+    display: block;
+}
+body {
+    line-height: 1;
+}
+ol, ul {
+    list-style: none;
+}
+blockquote, q {
+    quotes: none;
+}
+blockquote:before, blockquote:after,
+q:before, q:after {
+    content: '';
+    content: none;
+}
+table {
+    border-collapse: collapse;
+    border-spacing: 0;
+}
+
+/* --- layout --- */
+
+html {
+    font-size: 18px;
+    text-transform: lowercase;
+    color: #333333;
+    background-color: #F5F5F5;
+}
+
+body {
+    width: 480px;
+    margin: 0 auto;
+    padding: 1rem;
+}
+
+.activity {
+    background-color: white;
+    color: #A0A0A0;
+    border-radius: 0.5rem;
+    padding: 0.5rem;
+    margin-bottom: 1rem;
+    line-height: 150%;
+}
+
+.activity-name {
+    color: #04B900;
+}
+
+.activity-mood, .activity-note, .activity-time {
+    color: #333333;
+}
+
+.date-div {
+    display: flex;
+    gap: 0.5rem;
+    padding: 0 0.25rem;
+    align-items: center;
+    margin-bottom: 0;
+}
+
+.date-line {
+    background-color: #E0E0E0;
+    height: 1px;
+    flex: 1;
+}
+
+/* --- typography --- */
+
+body {
+    font-family: Inter, sans-serif;
+    font-feature-settings: 'liga' 1, 'calt' 1; /* fix for Chrome */  
+}
+
+h1 {
+    font-size: 2rem;
+}
+
+h2 {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.225rem;
+    color: #BDBDBD;
+}
+
+
+/* --- form --- */
+
+#add-activity-form {
+    background-color: rgb(238, 238, 238);
+    padding: 0.5rem;
+    -webkit-box-shadow: rgba(0, 0, 0, 0.3) 0 1px 3px;
+    -moz-box-shadow: rgba(0,0,0,0.3) 0 1px 3px;
+    box-shadow: rgba(0, 0, 0, 0.3) 0 1px 3px;
+    overflow: hidden;
+    border-radius: 0.5rem;
+    width: 300px;
+    position: fixed;
+    bottom: 1rem;
+    right: 1rem;
+    margin-bottom: 0;
+}
+
+
+input, textarea {
+    font-size: 1rem;
+    width: 100%;
+    padding: 0.5rem;
+    margin-bottom: 0.5rem;
+    border-radius: 0.25rem;
+    display: block;
+    box-sizing: border-box;
+    font-family: Inter, sans-serif;
+    border: none;
+}
+
+.button {
+    background-color: #333333;
+    color: white;
+    margin-bottom: 0;
+    border-radius: 0.25rem;
+}
+
+textarea {
+    height: 100px;
+}
+
+/* input.button {
+    color: white;
+    background-color: #007AFF;
+} */
+
+textarea {
+    margin-bottom: 0.5rem;
+}
